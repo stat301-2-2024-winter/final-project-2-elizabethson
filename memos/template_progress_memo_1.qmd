@@ -3,7 +3,7 @@ title: "Progress Memo 1"
 subtitle: |
   | Final Project 
   | Data Science 2 with R (STAT 301-2)
-author: "YOUR NAME"
+author: "Elizabeth Son"
 date: today
 
 format:
@@ -20,34 +20,21 @@ reference-location: margin
 citation-location: margin
 ---
 
-::: {.callout-important}
-## Memo format
-
-Like all other submissions for this course, we expect the memo to be neat and well organized. This a template to get you started. 
-
-You should make this document your own. To help with this we have added a date to the yaml above (good whenever writing memos). You should remove this block when making this document your own.
-
-:::
-
 ::: {.callout-tip icon=false}
 
 ## Github Repo Link
 
-To link to your github **repo**sitory, appropriately edit the example link below. Meaning replace `https://your-github-repo-url` with your github repo url. Suggest verifying the link works before submitting.
-
-[https://your-github-repo-url](https://your-github-repo-url)
+[https://github.com/stat301-2-2024-winter/final-project-2-elizabethson.git](https://github.com/stat301-2-2024-winter/final-project-2-elizabethson.git)
 
 :::
+## Prediction problem
+Describe your prediction research question/objective and identify the type of prediction problem it is. This includes identifying a variable and clearly stating if it is a classification or regression problem. Provide a motivation for pursuing this particular problem: Why would having a prediction model be useful for this problem? Why is it interesting to you? Is this part of a larger research project? Just thought it would be fun? etc.
 
-::: {.callout-warning}
-GitHub (free account) cannot store large files. If you try to commit and push a large dataset you will have an ERROR! Any file over 100 MB (100,000 KB) needs to be added to the `.gitignore` file BEFORE committing.
 
-**We may need to do that for files in your final project!**
-:::
 
 ## Data source
 
-Blah blah blah^[an example of footnote --- [content in margins](https://quarto.org/docs/blog/posts/2022-02-17-advanced-layout/)]
+Identify and describe your data source or sources -- citations would be appropriate. Citations must include links to the data source(s).^[an example of footnote --- [content in margins](https://quarto.org/docs/blog/posts/2022-02-17-advanced-layout/)]
 
 ## Why this data
 
@@ -55,12 +42,12 @@ Blah blah blah^[another footnote]
 
 ## Data quality & complexity check
 
-Blah blah blah
+You should demonstrate that you can read in your dataset(s) --- since we need proof of this, showing code is permitted or show code for the next steps. Quality check means providing answers to the following: How many variables and observations do you have? How many categorical vs numerical variables? Are there any missingness issues?
 
 ## Potential data issues
 
-Blah blah blah
+A univariate analysis of the target variable. Identify and discuss potential issues (symmetry/unbalanced/skewness & missingness) and discuss potential solutions such as transformations. 
+
 
 ## Misc
-
-Blah Blah
+Articulating a time line would be a good idea since fitting/training the models may take more time than expected (leave adequate time to train models and then analyze). 
