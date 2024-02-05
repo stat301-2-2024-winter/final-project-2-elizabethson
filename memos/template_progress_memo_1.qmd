@@ -28,26 +28,75 @@ citation-location: margin
 
 :::
 ## Prediction problem
-Describe your prediction research question/objective and identify the type of prediction problem it is. This includes identifying a variable and clearly stating if it is a classification or regression problem. Provide a motivation for pursuing this particular problem: Why would having a prediction model be useful for this problem? Why is it interesting to you? Is this part of a larger research project? Just thought it would be fun? etc.
-
-
+This project aims to predict whether a student will remain enrolled at university after two semesters, whether they will drop out, or whether they will graduate. This is a classification problem because the target variable, called "target" in the dataset but also known as "student result", is grouped into three classes. 
 
 ## Data source
-
-Identify and describe your data source or sources -- citations would be appropriate. Citations must include links to the data source(s).^[an example of footnote --- [content in margins](https://quarto.org/docs/blog/posts/2022-02-17-advanced-layout/)]
+This data came from the UC Irvine Machine Learning Repository's collection of donated datasets and is titled "Predict students' dropout and academic success"^[UC Irvine Machine Learning Repository, "Predict students' dropout and academic success" --- [https://archive.ics.uci.edu/dataset/697/predict+students+dropout+and+academic+success](https://archive.ics.uci.edu/dataset/697/predict+students+dropout+and+academic+success)]. It was created using data from a higher education institution. The dataset corresponds to a paper written by Martins et al., titled "Early prediction of student’s performance in higher education: a case study"^[M.V.Martins, D. Tolledo, J. Machado, L. M.T. Baptista, V.Realinho. (2021) "Early prediction of student’s performance in higher education: a case study" Trends and Applications in Information Systems and Technologies, vol.1, in Advances in Intelligent Systems and Computing series. Springer. DOI: 10.1007/978-3-030-72657-7_16].
 
 ## Why this data
 
-Blah blah blah^[another footnote]
+I chose this data because I think it is interesting how a student's success in college can be predicted using a variety of different factors. A prediction model for this particular problem would be applicable and useful not just to try and weed out students in application processes, but target certain groups during middle and high school to emphasize that secondary education is not the only option! Especially coming from a school where most students went on to a traditional university, I think that studies such as this one would be useful for emphasizing paths other than university for students that would help them save their time and money, such as vocational school. 
 
 ## Data quality & complexity check
+```{r}
+#| echo: FALSE
+# load packages
+library(readr)
+library(tidyverse)
+library(here)
 
-You should demonstrate that you can read in your dataset(s) --- since we need proof of this, showing code is permitted or show code for the next steps. Quality check means providing answers to the following: How many variables and observations do you have? How many categorical vs numerical variables? Are there any missingness issues?
+# read in dataset
+load(here("data/education.rda"))
+```
+
+```{r}
+#| echo: TRUE
+skimr::skim(education)
+```
+
+1. How many variables and observations do you have?
+
+There are 37 variables and 4424 observations.
+
+2. How many categorical vs numerical variables?
+
+There are 17 categorical (factor) variables and 20 numerical variables.
+
+3. Are there any missingness issues?
+
+Across all of the variables, there are no missing entries in any observation.
 
 ## Potential data issues
+The barplot showing the counts of each of the three classes of the target variable, target, shows that there is a slight imbalance in the target variable observations. There are significantly more observations of those who graduated (around 2250) compared to those who only enrolled (around 750). A potential solution would just be to make sure to use stratified sampling when I split the dataset into training and testing data. 
 
-A univariate analysis of the target variable. Identify and discuss potential issues (symmetry/unbalanced/skewness & missingness) and discuss potential solutions such as transformations. 
+```{r}
+education |> ggplot() +
+  geom_bar(aes(x = target)) +
+  labs(title = "Counts of Target Variable Categories",
+       x = "Student Result",
+       y = NULL)
+```
 
+There are no missing observations in the target variable, which is good!
+```{r}
+sum(is.na(education$target))
+```
 
 ## Misc
-Articulating a time line would be a good idea since fitting/training the models may take more time than expected (leave adequate time to train models and then analyze). 
+
+### Project Timeline
+**- 02/04: Progress Memo 1 Due**
+
+- 02/05: work on cleaning/splitting data and initial variable checks (for missingness, transformations, etc.)
+
+- 02/12: work on fitting/training a baseline +1 model
+
+**- 02/19: Progress Memo 2 Due**
+
+- 02/19: work on fitting/training models
+
+- 02/26: build tables/charts showing model accuracy
+
+- 03/11: finish Report, Executive Summary, ReadMes
+
+**- 03/13: Final Project 2 Due**
