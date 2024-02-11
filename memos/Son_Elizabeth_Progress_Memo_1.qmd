@@ -60,7 +60,7 @@ There are 37 variables and 4424 observations.
 
 2. How many categorical vs numerical variables?
 
-There are 17 categorical (factor) variables and 20 numerical variables.
+There are 11 categorical (factor) variables and 26 numerical variables.
 
 3. Are there any missingness issues?
 
