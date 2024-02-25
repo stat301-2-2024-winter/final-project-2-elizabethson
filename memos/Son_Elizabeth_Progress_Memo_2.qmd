@@ -27,7 +27,58 @@ citation-location: margin
 [https://github.com/stat301-2-2024-winter/final-project-2-elizabethson.git](https://github.com/stat301-2-2024-winter/final-project-2-elizabethson.git)
 
 :::
-- an analysis plan (data splitting, model types, recipes, etc) mapped out and started,
-- their baseline/null model properly defined and fitted, and
-- one other model type should be properly defined and fitted.
-- summarize their progress, where they are at, and what their next steps will be. Identifying and potential issues or concerns would be a good idea too.
+
+## Recap of Project Memo 1:
+
+# Overview
+In Project Memo 1, I identified that this predictive modeling process will be a classification problem, aiming to predict whether a student will remain enrolled at university after two semesters, whether they will drop out, or whether they will graduate. The data comes from the UC Irvine Machine Learning Repository's collection of donated datasets and is titled "Predict students' dropout and academic success"^[UC Irvine Machine Learning Repository, "Predict students' dropout and academic success" --- [https://archive.ics.uci.edu/dataset/697/predict+students+dropout+and+academic+success](https://archive.ics.uci.edu/dataset/697/predict+students+dropout+and+academic+success)].
+
+# Progress
+- I checked the data for missing values, and found that there were no missing observations across all of the 37 variables. 
+- I found that there is a slight imbalance in the taret variable observations, with more observations of those who graduated compared to those who only enrolled. I accounted for this by using stratified sampling when I split the dataset into training and testing data.
+
+## Data Splitting: (see `01_split_data.R`)
+- Splits: I split the data using a proportion of 0.8 and stratified by the `target` variable.
+- V-Folds: I applied V-fold cross validation to the training dataset using 10 folds and 3 repeats, also stratifying by the `target` variable. This means I will be fitting/training each model 10*3 = 30 times during the model competition/comparison stage. 
+
+## Recipe: (see `02_recipes.R`)
+Right now I have one, very basic recipe. However, as you can see in `02b_visualizing_relationships.R`, I have started to identify relationships between predictor variables to refine my recipe and create more down the road, including things like natural splines, interaction terms, and transformations. 
+
+## Model Types:
+1. Null/baseline Model: (see `03a_fit_null`)
+2. Multinomial Model: (see `03b_fit_multi`)
+
+## Assessment Metric: RMSE
+```{r}
+#| label: tbl-rmse
+#| tbl-cap: "RMSE and standard error of null and multinomial models."
+#| echo: FALSE
+
+# load relevant package/files: 
+library(tidyverse)
+library(tidymodels)
+library(here)
+load(here("results/null_fit.rda"))
+load(here("results/mn_fit.rda"))
+
+# code: 
+model_results <- as_workflow_set(
+  null = null_fit,
+  mn = mn_fit
+)
+
+model_results |> 
+  collect_metrics() |> 
+  filter(.metric == "rmse") |> 
+  slice_min(mean, by = wflow_id) |> 
+  arrange(mean) |> 
+  select("Model Type" = wflow_id, 
+         "RMSE" = mean, 
+         "Std Error" = std_err, 
+         "Number of Computations" = n) |> 
+  knitr::kable(digits = c(NA, 2, 4, 0))
+```
+According to @tbl-rmse, the model type that produced the best model is the Boosted Tree because it has the lowest RMSE of 1.43 and a low standard error of 0.0276. The Boosted Tree model's hyperparameter values are `mtry` = 14, `min_n` = 40, `learn_rate` = .631 (see part 1 of Task 9).
+
+## Next Steps:
+- Potential issues: 

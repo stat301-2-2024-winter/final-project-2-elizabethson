@@ -1,4 +1,4 @@
-# null fit ---
+# knn fit ---
 
 # load packages ----
 library(tidyverse)
@@ -24,19 +24,9 @@ load(here("results/education_recipe.rda"))
 set.seed(123)
 
 # model specifications ----
-null_spec <- null_model() |> 
-  set_engine("parsnip") |> 
-  set_mode("classification")
 
 # define workflows ----
-null_wkflw <- workflow() |>
-  add_model(null_spec) |> 
-  add_recipe(education_recipe)
 
 # fit workflows/models ----
-null_fit <- fit_resamples(null_wkflw,
-                          resamples = education_folds,
-                          control = control_resamples(save_workflow = TRUE))
 
-# save ---
-save(null_fit, file = "results/null_fit.rda")
+# save ---- 

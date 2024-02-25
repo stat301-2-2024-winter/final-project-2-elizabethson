@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Elizabeth Son">
-<meta name="dcterms.date" content="2024-02-11">
+<meta name="dcterms.date" content="2024-02-25">
 
 <title>Progress Memo 2</title>
 <style>
@@ -2987,9 +2987,24 @@ vertical-align: -.125em;
 
 <div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
 <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-  
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#recap-of-project-memo-1" id="toc-recap-of-project-memo-1" class="nav-link active" data-scroll-target="#recap-of-project-memo-1">Recap of Project Memo 1:</a></li>
+  <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#progress" id="toc-progress" class="nav-link" data-scroll-target="#progress">Progress</a>
+  <ul class="collapse">
+  <li><a href="#data-splitting-see-01_split_data.r" id="toc-data-splitting-see-01_split_data.r" class="nav-link" data-scroll-target="#data-splitting-see-01_split_data.r">Data Splitting: (see <code>01_split_data.R</code>)</a></li>
+  <li><a href="#recipe-see-02_recipes.r" id="toc-recipe-see-02_recipes.r" class="nav-link" data-scroll-target="#recipe-see-02_recipes.r">Recipe: (see <code>02_recipes.R</code>)</a></li>
+  <li><a href="#model-types" id="toc-model-types" class="nav-link" data-scroll-target="#model-types">Model Types:</a></li>
+  <li><a href="#assessment-metric-rmse" id="toc-assessment-metric-rmse" class="nav-link" data-scroll-target="#assessment-metric-rmse">Assessment Metric: RMSE</a></li>
+  <li><a href="#next-steps" id="toc-next-steps" class="nav-link" data-scroll-target="#next-steps">Next Steps:</a></li>
+  </ul></li>
+  </ul>
+</nav>
 </div>
-<main class="content" id="quarto-document-content">
+<main class="content page-columns page-full" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -3012,7 +3027,7 @@ Data Science 2 with R (STAT 301-2)</p><p></p>
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 11, 2024</p>
+      <p class="date">February 25, 2024</p>
     </div>
   </div>
   
@@ -3035,9 +3050,68 @@ Github Repo Link
 <p><a href="https://github.com/stat301-2-2024-winter/final-project-2-elizabethson.git">https://github.com/stat301-2-2024-winter/final-project-2-elizabethson.git</a></p>
 </div>
 </div>
-<p>READ ME!!</p>
-<p>Students are expected to demonstrate that significant progress has been made on their final project since the submission of Progress Memo 1. Students should have</p>
-<p>an analysis plan (data splitting, model types, recipes, etc) mapped out and started, their baseline/null model properly defined and fitted, and one other model type should be properly defined and fitted. Students should summarize their progress, where they are at, and what their next steps will be. Identifying and potential issues or concerns would be a good idea too.</p>
+<section id="recap-of-project-memo-1" class="level2">
+<h2 class="anchored" data-anchor-id="recap-of-project-memo-1">Recap of Project Memo 1:</h2>
+</section>
+<section id="overview" class="level1 page-columns page-full">
+<h1>Overview</h1>
+<div class="page-columns page-full"><p>In Project Memo 1, I identified that this predictive modeling process will be a classification problem, aiming to predict whether a student will remain enrolled at university after two semesters, whether they will drop out, or whether they will graduate. The data comes from the UC Irvine Machine Learning Repository’s collection of donated datasets and is titled “Predict students’ dropout and academic success”<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>.</p><div class="no-row-height column-margin column-container"><li id="fn1"><p><sup>1</sup> UC Irvine Machine Learning Repository, “Predict students’ dropout and academic success” — <a href="https://archive.ics.uci.edu/dataset/697/predict+students+dropout+and+academic+success">https://archive.ics.uci.edu/dataset/697/predict+students+dropout+and+academic+success</a></p></li></div></div>
+</section>
+<section id="progress" class="level1">
+<h1>Progress</h1>
+<ul>
+<li>I checked the data for missing values, and found that there were no missing observations across all of the 37 variables.</li>
+<li>I found that there is a slight imbalance in the taret variable observations, with more observations of those who graduated compared to those who only enrolled. I accounted for this by using stratified sampling when I split the dataset into training and testing data.</li>
+</ul>
+<section id="data-splitting-see-01_split_data.r" class="level2">
+<h2 class="anchored" data-anchor-id="data-splitting-see-01_split_data.r">Data Splitting: (see <code>01_split_data.R</code>)</h2>
+<ul>
+<li>Splits: I split the data using a proportion of 0.8 and stratified by the <code>target</code> variable.</li>
+<li>V-Folds: I applied V-fold cross validation to the training dataset using 10 folds and 3 repeats, also stratifying by the <code>target</code> variable. This means I will be fitting/training each model 10*3 = 30 times during the model competition/comparison stage.</li>
+</ul>
+</section>
+<section id="recipe-see-02_recipes.r" class="level2">
+<h2 class="anchored" data-anchor-id="recipe-see-02_recipes.r">Recipe: (see <code>02_recipes.R</code>)</h2>
+<p>Right now I have one, very basic recipe. However, as you can see in <code>02b_visualizing_relationships.R</code>, I have started to identify relationships between predictor variables to refine my recipe and create more down the road, including things like natural splines, interaction terms, and transformations.</p>
+</section>
+<section id="model-types" class="level2">
+<h2 class="anchored" data-anchor-id="model-types">Model Types:</h2>
+<ol type="1">
+<li>Null/baseline Model: (see <code>03a_fit_null</code>)</li>
+<li>Multinomial Model: (see <code>03b_fit_multi</code>)</li>
+</ol>
+</section>
+<section id="assessment-metric-rmse" class="level2">
+<h2 class="anchored" data-anchor-id="assessment-metric-rmse">Assessment Metric: RMSE</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div id="tbl-rmse" class="anchored">
+<table>
+<caption>Table 1: RMSE and standard error of null and multinomial models.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model Type</th>
+<th style="text-align: right;">RMSE</th>
+<th style="text-align: right;">Std Error</th>
+<th style="text-align: right;">Number of Computations</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<p>According to <a href="#tbl-rmse">Table 1</a>, the model type that produced the best model is the Boosted Tree because it has the lowest RMSE of 1.43 and a low standard error of 0.0276. The Boosted Tree model’s hyperparameter values are <code>mtry</code> = 14, <code>min_n</code> = 40, <code>learn_rate</code> = .631 (see part 1 of Task 9).</p>
+</section>
+<section id="next-steps" class="level2">
+<h2 class="anchored" data-anchor-id="next-steps">Next Steps:</h2>
+<ul>
+<li>Potential issues:</li>
+</ul>
+</section>
+</section>
+
 
 </main>
 <!-- /main column -->

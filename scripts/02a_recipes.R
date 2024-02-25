@@ -1,5 +1,5 @@
 # Progress Memo 2.2 R Script
-# set up pre-processing/recipes ---
+# set up pre-processing/recipes --- IGNORE FOR NOW
 
 # load packages ----
 library(tidyverse)
@@ -18,7 +18,6 @@ load(here("data/education_folds.rda"))
 # do i have to graph each relationship? --> write a function plotting each numeric var (like a hist) to quickly flip thru
 # should i step normalize all? 
 # dummy only the factors? 
-# WHAT IS A BSELINE?NULL MODEL
 
 # create recipe (1 kitchen sink with everything and 1 with transformations: interaction, dummy, normalization, nat spline, other transformations, being selective w variables)
 kc_recipe <- recipe(log_price ~ ., data = kc_train) |> 
