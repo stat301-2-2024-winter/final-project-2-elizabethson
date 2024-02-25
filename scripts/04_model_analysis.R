@@ -34,13 +34,19 @@ roc_mn <- mn_fit |>
   collect_metrics() |> 
   filter(.metric == "roc_auc")
 
-model_results |> 
-  collect_metrics() |> 
-  filter(.metric == "roc_auc") |> 
-  slice_min(mean, by = wflow_id) |> 
-  arrange(mean) |> 
-  select("Model Type" = wflow_id, 
-         "RMSE" = mean, 
-         "Std Error" = std_err, 
-         "Number of Computations" = n) |> 
-  knitr::kable(digits = c(NA, 2, 4, 0))
+education_metrics <- bind_rows(roc_null |> mutate(model = "Null"),
+                               roc_mn |> mutate(model = "Multinomial"))
+
+roc_table <- education_metrics |>
+  rename(metric = .metric) |>
+  rename("SE" = std_err) |>
+  rename(ROC = mean) |>
+  rename("Model" = model) |>
+  rename("Computations" = n) |>
+  select("Model", ROC, "SE", "Computations") |> 
+  knitr::kable(digits = c(NA, 2, 3, 0))
+
+roc_table
+
+# save ---
+save(roc_table, file = "results/roc_table.rda")

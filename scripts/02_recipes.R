@@ -14,7 +14,7 @@ load(here("data/education_split.rda"))
 
 # recipe ---
 education_recipe <- recipe(target ~ ., data = education_train) |> 
-  step_dummy(all_nominal_predictors()) |> 
+  step_dummy(all_nominal_predictors(), one_hot = TRUE) |> 
   step_zv(all_predictors()) |> 
   step_normalize(all_predictors())
 

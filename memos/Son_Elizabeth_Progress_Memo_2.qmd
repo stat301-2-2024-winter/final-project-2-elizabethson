@@ -48,37 +48,21 @@ Right now I have one, very basic recipe. However, as you can see in `02b_visuali
 1. Null/baseline Model: (see `03a_fit_null`)
 2. Multinomial Model: (see `03b_fit_multi`)
 
-## Assessment Metric: RMSE
+## Assessment Metric: ROC
 ```{r}
-#| label: tbl-rmse
-#| tbl-cap: "RMSE and standard error of null and multinomial models."
+#| label: tbl-roc
+#| tbl-cap: "ROC of null and multinomial models"
 #| echo: FALSE
 
-# load relevant package/files: 
-library(tidyverse)
-library(tidymodels)
+# load
 library(here)
-load(here("results/null_fit.rda"))
-load(here("results/mn_fit.rda"))
+load(here("results/roc_table.rda"))
 
-# code: 
-model_results <- as_workflow_set(
-  null = null_fit,
-  mn = mn_fit
-)
-
-model_results |> 
-  collect_metrics() |> 
-  filter(.metric == "rmse") |> 
-  slice_min(mean, by = wflow_id) |> 
-  arrange(mean) |> 
-  select("Model Type" = wflow_id, 
-         "RMSE" = mean, 
-         "Std Error" = std_err, 
-         "Number of Computations" = n) |> 
-  knitr::kable(digits = c(NA, 2, 4, 0))
+roc_table
 ```
-According to @tbl-rmse, the model type that produced the best model is the Boosted Tree because it has the lowest RMSE of 1.43 and a low standard error of 0.0276. The Boosted Tree model's hyperparameter values are `mtry` = 14, `min_n` = 40, `learn_rate` = .631 (see part 1 of Task 9).
+According to @tbl-roc, the model type that produced the best model is the Boosted Tree because it has the lowest RMSE of 1.43 and a low standard error of 0.0276. The Boosted Tree model's hyperparameter values are `mtry` = 14, `min_n` = 40, `learn_rate` = .631 (see part 1 of Task 9).
 
 ## Next Steps:
-- Potential issues: 
+- Work through `02b_visualizing_relationships.R` to create a new recipe after data explorations
+- Build several other models: boosted tree, knn, elastic net, and random forest (the placeholder R scripts have been created in the `scripts/` folder)
+- Potential issues: I cannot identify any potential issues for now

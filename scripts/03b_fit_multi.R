@@ -59,8 +59,5 @@ mn_tuned <- tune_grid(mn_wkflw,
                        grid = mn_grid,
                        control = control_grid(save_workflow = TRUE))
 
-# load again
-load(here("results/mn_tuned.rda"))
-
 # save ---- 
 save(fit_tuned_mn, file = "results/fit_tuned_mn.rda")

@@ -2998,7 +2998,7 @@ vertical-align: -.125em;
   <li><a href="#data-splitting-see-01_split_data.r" id="toc-data-splitting-see-01_split_data.r" class="nav-link" data-scroll-target="#data-splitting-see-01_split_data.r">Data Splitting: (see <code>01_split_data.R</code>)</a></li>
   <li><a href="#recipe-see-02_recipes.r" id="toc-recipe-see-02_recipes.r" class="nav-link" data-scroll-target="#recipe-see-02_recipes.r">Recipe: (see <code>02_recipes.R</code>)</a></li>
   <li><a href="#model-types" id="toc-model-types" class="nav-link" data-scroll-target="#model-types">Model Types:</a></li>
-  <li><a href="#assessment-metric-rmse" id="toc-assessment-metric-rmse" class="nav-link" data-scroll-target="#assessment-metric-rmse">Assessment Metric: RMSE</a></li>
+  <li><a href="#assessment-metric-roc" id="toc-assessment-metric-roc" class="nav-link" data-scroll-target="#assessment-metric-roc">Assessment Metric: ROC</a></li>
   <li><a href="#next-steps" id="toc-next-steps" class="nav-link" data-scroll-target="#next-steps">Next Steps:</a></li>
   </ul></li>
   </ul>
@@ -3081,33 +3081,47 @@ Github Repo Link
 <li>Multinomial Model: (see <code>03b_fit_multi</code>)</li>
 </ol>
 </section>
-<section id="assessment-metric-rmse" class="level2">
-<h2 class="anchored" data-anchor-id="assessment-metric-rmse">Assessment Metric: RMSE</h2>
+<section id="assessment-metric-roc" class="level2">
+<h2 class="anchored" data-anchor-id="assessment-metric-roc">Assessment Metric: ROC</h2>
 <div class="cell">
 <div class="cell-output-display">
-<div id="tbl-rmse" class="anchored">
-<table>
-<caption>Table 1: RMSE and standard error of null and multinomial models.</caption>
+<div id="tbl-roc" class="anchored">
+<table class="table table-sm table-striped small">
+<caption>Table 1: ROC of null and multinomial models</caption>
 <thead>
 <tr class="header">
-<th style="text-align: left;">Model Type</th>
-<th style="text-align: right;">RMSE</th>
-<th style="text-align: right;">Std Error</th>
-<th style="text-align: right;">Number of Computations</th>
+<th style="text-align: left;">Model</th>
+<th style="text-align: right;">ROC</th>
+<th style="text-align: right;">SE</th>
+<th style="text-align: right;">Computations</th>
 </tr>
 </thead>
 <tbody>
+<tr class="odd">
+<td style="text-align: left;">Null</td>
+<td style="text-align: right;">0.50</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Multinomial</td>
+<td style="text-align: right;">0.86</td>
+<td style="text-align: right;">0.004</td>
+<td style="text-align: right;">30</td>
+</tr>
 </tbody>
 </table>
 </div>
 </div>
 </div>
-<p>According to <a href="#tbl-rmse">Table 1</a>, the model type that produced the best model is the Boosted Tree because it has the lowest RMSE of 1.43 and a low standard error of 0.0276. The Boosted Tree model’s hyperparameter values are <code>mtry</code> = 14, <code>min_n</code> = 40, <code>learn_rate</code> = .631 (see part 1 of Task 9).</p>
+<p>According to <a href="#tbl-roc">Table 1</a>, the model type that produced the best model is the Boosted Tree because it has the lowest RMSE of 1.43 and a low standard error of 0.0276. The Boosted Tree model’s hyperparameter values are <code>mtry</code> = 14, <code>min_n</code> = 40, <code>learn_rate</code> = .631 (see part 1 of Task 9).</p>
 </section>
 <section id="next-steps" class="level2">
 <h2 class="anchored" data-anchor-id="next-steps">Next Steps:</h2>
 <ul>
-<li>Potential issues:</li>
+<li>Work through <code>02b_visualizing_relationships.R</code> to create a new recipe after data explorations</li>
+<li>Build several other models: boosted tree, knn, elastic net, and random forest (the placeholder R scripts have been created in the <code>scripts/</code> folder)</li>
+<li>Potential issues: I cannot identify any potential issues for now</li>
 </ul>
 </section>
 </section>
