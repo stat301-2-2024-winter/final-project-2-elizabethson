@@ -24,19 +24,19 @@ load(here("results/education_recipe.rda"))
 load(here("results/null_fit.rda"))
 load(here("results/mn_fit.rda"))
 
-# RMSE Chart ---
-# collect RMSEs:
-rmse_null <- null_fit |> 
-  collect_metrics() |> 
-  filter(.metric == "rmse")
 
-rmse_mn <- mn_fit |> 
+# ROC --
+roc_null <- null_fit |> 
   collect_metrics() |> 
-  filter(.metric == "rmse")
+  filter(.metric == "roc_auc")
+
+roc_mn <- mn_fit |> 
+  collect_metrics() |> 
+  filter(.metric == "roc_auc")
 
 model_results |> 
   collect_metrics() |> 
-  filter(.metric == "rmse") |> 
+  filter(.metric == "roc_auc") |> 
   slice_min(mean, by = wflow_id) |> 
   arrange(mean) |> 
   select("Model Type" = wflow_id, 
@@ -44,18 +44,3 @@ model_results |>
          "Std Error" = std_err, 
          "Number of Computations" = n) |> 
   knitr::kable(digits = c(NA, 2, 4, 0))
-
-education_metrics <- bind_rows(rmse_null |> mutate(model = "Null"),
-                           rmse_mn |> mutate(model = "Multinomial"))
-
-
-rmse_table <- education_metrics |>
-  rename(metric = .metric) |>
-  rename("SE" = std_err) |>
-  rename(RMSE = mean) |>
-  rename("Model" = model) |>
-  rename("Computations" = n) |>
-  select("Model", RMSE, "SE", "Computations") |> 
-  knitr::kable(digits = c(NA, 2, 3, 0))
-
-save(education_metrics,rmse_table, file="results/rmse_table.rda")
