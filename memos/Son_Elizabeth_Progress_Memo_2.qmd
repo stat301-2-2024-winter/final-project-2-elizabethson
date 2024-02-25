@@ -30,10 +30,10 @@ citation-location: margin
 
 ## Recap of Project Memo 1:
 
-# Overview
+### Overview
 In Project Memo 1, I identified that this predictive modeling process will be a classification problem, aiming to predict whether a student will remain enrolled at university after two semesters, whether they will drop out, or whether they will graduate. The data comes from the UC Irvine Machine Learning Repository's collection of donated datasets and is titled "Predict students' dropout and academic success"^[UC Irvine Machine Learning Repository, "Predict students' dropout and academic success" --- [https://archive.ics.uci.edu/dataset/697/predict+students+dropout+and+academic+success](https://archive.ics.uci.edu/dataset/697/predict+students+dropout+and+academic+success)].
 
-# Progress
+### Progress
 - I checked the data for missing values, and found that there were no missing observations across all of the 37 variables. 
 - I found that there is a slight imbalance in the taret variable observations, with more observations of those who graduated compared to those who only enrolled. I accounted for this by using stratified sampling when I split the dataset into training and testing data.
 
@@ -60,7 +60,7 @@ load(here("results/roc_table.rda"))
 
 roc_table
 ```
-According to @tbl-roc, the model type that produced the best model is the Boosted Tree because it has the lowest RMSE of 1.43 and a low standard error of 0.0276. The Boosted Tree model's hyperparameter values are `mtry` = 14, `min_n` = 40, `learn_rate` = .631 (see part 1 of Task 9).
+According to @tbl-roc, the null model worked as expected since the default area under the ROC curve is 0.5. The closer the ROC AUC is to 1.0, the greater predictive power of the model. The multinomial model has an ROC AUC value of 0.86, which is definitely closer to 1.0 and shows greater prediction accuracy compared to the null model!
 
 ## Next Steps:
 - Work through `02b_visualizing_relationships.R` to create a new recipe after data explorations
