@@ -1,4 +1,3 @@
-# Progress Memo 2.2 R Script
 # check for interaction terms ---
 
 # load packages ----
@@ -26,3 +25,29 @@ numerical_names <- colnames(numerical_data)
 # create corplot
 ggcorrplot::ggcorrplot(cor_matrix) +
   ggtitle("Correlation Plot: Numerical Variables in Dataset")
+
+# check interactions I used intuition for ---
+# marital v. age
+education_train |> 
+  ggplot(aes(x = marital, y = age)) +
+  geom_boxplot()
+
+# debtor v. tuition_fees_up_to_date
+education_train |> 
+  ggplot(aes(fill = tuition_fees_up_to_date, x = debtor)) +
+  geom_bar()
+
+# admission_grade v. scholarship (no relationship detected)
+education_train |> 
+  ggplot(aes(x = admission_grade, y = scholarship)) +
+  geom_boxplot()
+
+# unemployment_rate v. debtor (no relationship detected)
+education_train |> 
+  ggplot(aes(x = debtor, y = unemployment_rate)) +
+  geom_boxplot()
+
+# displaced v. international
+education_train |> 
+  ggplot(aes(fill = international, y = displaced)) +
+  geom_bar()

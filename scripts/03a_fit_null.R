@@ -19,6 +19,7 @@ load(here("data/education_split.rda"))
 
 # load preprocessing/feature engineering/recipe
 load(here("results/education_recipe.rda"))
+load(here("results/education_recipe_trans.rda"))
 
 # set seed ---
 set.seed(123)

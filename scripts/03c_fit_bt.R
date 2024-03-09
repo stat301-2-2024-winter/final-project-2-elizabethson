@@ -24,7 +24,7 @@ load(here("results/education_recipe.rda"))
 set.seed(123)
 
 # model specifications ----
-bt_spec <- boost_tree(mode = "regression", 
+bt_spec <- boost_tree(mode = "classification", 
                       min_n = tune(),
                       mtry = tune(), 
                       learn_rate = tune()) |> 

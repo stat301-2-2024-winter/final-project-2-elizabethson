@@ -48,5 +48,19 @@ roc_table <- education_metrics |>
 
 roc_table
 
+# OR
+penguins_metrics <- fit_folds_multinom |> 
+  collect_metrics() |> 
+  mutate(model = "multinomial") |> 
+  bind_rows(fit_folds_knn |> collect_metrics() |> mutate(model = "knn")) |> 
+  # we are going to choose roc_auc as our metric
+  filter(.metric == "roc_auc")
+
+penguins_metrics |> 
+  select(model, mean, std_err) |> 
+  kbl() |> 
+  kable_styling()
+elastic_workflow <- elastic_workflow |> 
+  finalize_workflow(select_best(tuned_elastic, metric = "rmse"))
 # save ---
 save(roc_table, file = "results/roc_table.rda")
