@@ -1,4 +1,3 @@
-# Progress Memo 2.2 R Script
 # training the final model ---
 
 # load packages ----
@@ -12,16 +11,16 @@ tidymodels_prefer()
 # load data ---
 # SEE SLIDE 8
 set.seed(123)
-final_fit <- fit(multinom_wkflow, data = penguins_train)
+final_fit <- fit(multinom_wkflow, data = education_train)
 
-penguins_metrics1 <- metric_set(roc_auc)
-penguins_metrics2 <- metric_set(f_meas, accuracy)
+education_metrics1 <- metric_set(roc_auc)
+education_metrics2 <- metric_set(f_meas, accuracy)
 
-penguins_results <- penguins_test |> 
-  select(species) |> 
-  bind_cols(predict(final_fit, new_data = penguins_test),
-            predict(final_fit, new_data = penguins_test, type = "prob"))
+education_results <- education_test |> 
+  select(target) |> 
+  bind_cols(predict(final_fit, new_data = education_test),
+            predict(final_fit, new_data = education_test, type = "prob"))
 
-penguins_results |> 
+education_results |> 
   # in multiclass prediction must provide all "pred" columns for roc_auc
-  penguins_metrics1(truth = species, .pred_Adelie:.pred_Gentoo)
+  education_metrics1(truth = target, .pred_Adelie:.pred_Gentoo)
