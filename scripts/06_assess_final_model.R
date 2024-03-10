@@ -10,3 +10,9 @@ library(here)
 tidymodels_prefer()
 
 # load data ---
+
+
+# conf matrix
+penguins_results |> 
+  conf_mat(species, .pred_class) |> 
+  autoplot(type = "heatmap")

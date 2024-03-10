@@ -26,6 +26,10 @@ load(here("results/mn_fit.rda"))
 
 
 # ROC --
+select_best(rf_tuned, metric = "roc")
+select_best(bt_tuned, metric = "roc")
+select_best(knn_tuned, metric = "roc")
+
 roc_null <- null_fit |> 
   collect_metrics() |> 
   filter(.metric == "roc_auc")

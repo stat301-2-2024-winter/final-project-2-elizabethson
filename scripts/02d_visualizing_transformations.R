@@ -1,7 +1,7 @@
 # check for specific var transformations ---
 
 # load packages ----
-librar y(tidyverse)
+library(tidyverse)
 library(tidymodels)
 library(here)
 
@@ -30,4 +30,12 @@ numerical_names <- education_train |>
 for (var in numerical_names) {
   print(create_density(education_train, var))
 }
-      
+
+# check for step_other using barplots on categorical variables ---
+education_train |>
+  ggplot(aes(y = marital)) +
+  geom_bar()
+
+education_train |>
+  ggplot(aes(y = application_order)) +
+  geom_bar()

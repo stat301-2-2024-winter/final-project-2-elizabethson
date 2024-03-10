@@ -1,4 +1,4 @@
-# bt fit ---
+# bt fit, kitchen sink recipe ---
 
 # load packages ----
 library(tidyverse)
@@ -18,7 +18,7 @@ load(here("data/education_folds.rda"))
 load(here("data/education_split.rda"))
 
 # load preprocessing/feature engineering/recipe
-load(here("results/education_recipe.rda"))
+load(here("recipes/education_recipe_tree.rda"))
 
 # set seed ---
 set.seed(123)
@@ -33,11 +33,11 @@ bt_spec <- boost_tree(mode = "classification",
 # define workflows ----
 bt_workflow <- workflow() |> 
   add_model(bt_spec) |> 
-  add_recipe(educarion_recipe)
+  add_recipe(education_recipe_tree)
 
 # hyperparameter tuning values ----
 bt_params <- extract_parameter_set_dials(bt_spec) |> 
-  update(mtry = mtry(c(1, 14))) |> 
+  update(mtry = mtry(c(1, 7))) |> 
   update(learn_rate = learn_rate(c(-5, -0.2)))
 
 # build tuning grid
@@ -52,8 +52,8 @@ bt_tuned <- tune_grid(bt_workflow,
                       grid = bt_grid,
                       control = control_grid(save_workflow = TRUE))
 
-# plot
-autoplot(bt_tuned, metric = "roc")
+# select best hyperparameters ---
+select_best(bt_tuned, metric = "accuracy") # best hyperparameters: mtry = 7, min_n = 11, learn_rate = .631
 
 # write out results (fitted/trained workflows) ----
 save(bt_tuned, file = here("results/bt_tuned.rda"))

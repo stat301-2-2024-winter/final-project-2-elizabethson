@@ -1,4 +1,4 @@
-# rf fit ---
+# rf fit, kitchen sink recipe ---
 
 # load packages ----
 library(tidyverse)
@@ -18,12 +18,11 @@ load(here("data/education_folds.rda"))
 load(here("data/education_split.rda"))
 
 # load preprocessing/feature engineering/recipe
-load(here("results/education_recipe.rda"))
+load(here("recipes/education_recipe_tree.rda"))
 
 # set seed ---
 set.seed(123)
 
-## kitchen sink recipe ---
 # model specifications ----
 rf_spec <- 
   rand_forest(
@@ -37,7 +36,7 @@ rf_spec <-
 # define workflows ----
 rf_workflow <- workflow() |> 
   add_model(rf_spec) |> 
-  add_recipe(education_recipe)
+  add_recipe(education_recipe_tree)
 
 # hyperparameter tuning values ----
 rf_params <- extract_parameter_set_dials(rf_spec) |>
@@ -52,5 +51,8 @@ rf_tuned <- tune_grid(rf_workflow,
                       grid = rf_grid,
                       control = control_grid(save_workflow = TRUE))
 
-# save (fitted/trained workflows) ----
+# select best hyperparameters ---
+select_best(rf_tuned, metric = "accuracy") # best hyperparameters: mtry = 7, min_n = 11
+
+# write out results (fitted/trained workflows) ----
 save(rf_tuned, file = here("results/rf_tuned.rda"))

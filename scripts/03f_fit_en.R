@@ -1,4 +1,4 @@
-# rf fit ---
+# en fit, kitchen sink recipe ---
 
 # load packages ----
 library(tidyverse)
@@ -18,44 +18,44 @@ load(here("data/education_folds.rda"))
 load(here("data/education_split.rda"))
 
 # load preprocessing/feature engineering/recipe
-load(here("results/education_recipe.rda"))
+load(here("recipes/education_recipe.rda"))
 
 # set seed ---
 set.seed(123)
 
 # model specifications ----
-rf_spec <- 
-  rand_forest(
-    mode = "regression",
-    trees = 1000, 
-    min_n = tune(),
-    mtry = tune()
+en_spec <- 
+  multinom_reg(
+    mode = "classification",
+    penalty = tune(),
+    mixture = tune()
   ) |> 
-  set_engine("ranger")
+  set_engine("glmnet")
 
 # define workflows ----
-rf_workflow <- workflow() |> 
-  add_model(rf_spec) |> 
+en_workflow <- workflow() |> 
+  add_model(en_spec) |> 
   add_recipe(education_recipe)
 
 # hyperparameter tuning values ----
-rf_params <- extract_parameter_set_dials(rf_spec) |>  
-  # N:= maximum number of random predictor columns we want to try 
-  # should be less than the number of available columns
-  update(mtry = mtry(c(1, 14))) 
+en_params <- extract_parameter_set_dials(en_spec) |>  
+  update(penalty = penalty(c(0, 1))) |> 
+  update(mixture = mixture(c(0, 1)))
 
 # build tuning grid
-rf_grid <- grid_regular(rf_params, levels = 5)
+en_grid <- grid_regular(en_params, levels = 5)
 
 # fit workflows/models ----
+# set seed
+set.seed(123)
 # fit
-rf_tuned <- tune_grid(rf_workflow,
+en_tuned <- tune_grid(en_workflow,
                       education_folds,
-                      grid = rf_grid,
+                      grid = en_grid,
                       control = control_grid(save_workflow = TRUE))
 
-# plot
-autoplot(rf_tuned, metric = "roc")
+# select best hyperparameters ---
+select_best(en_tuned, metric = "accuracy") # best hyperparameters: penalty = 1, mixture = 0
 
-# save (fitted/trained workflows) ----
-save(rf_tuned, file = here("results/rf_tuned.rda"))
+# write out results (fitted/trained workflows) ----
+save(en_tuned, file = here("results/en_tuned.rda"))

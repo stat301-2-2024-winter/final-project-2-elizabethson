@@ -49,5 +49,5 @@ education_train |>
 
 # displaced v. international
 education_train |> 
-  ggplot(aes(fill = international, y = displaced)) +
+  ggplot(aes(fill = international, x = displaced)) +
   geom_bar()

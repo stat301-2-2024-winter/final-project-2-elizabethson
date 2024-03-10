@@ -22,10 +22,10 @@ education_recipe <- recipe(target ~ ., data = education_train) |>
 prep_rec <- prep(education_recipe) |> 
   bake(new_data = education_train)
 view(prep_rec) |>
-  slice_head(n= 10) # 56 predictors
+  slice_head(n= 10) # 46 predictors
 
 # save recipe
-save(education_recipe, file = here("results/education_recipe.rda"))
+save(education_recipe, file = here("recipes/education_recipe.rda"))
 
 # recipe for tree models ---
 education_recipe_tree <- recipe(target ~ ., data = education_train) |> 
@@ -42,6 +42,6 @@ view(prep_rec) |>
   slice_head(n= 10) # 56 predictors
 
 # save recipe
-save(education_recipe_tree, file = here("results/education_recipe_tree.rda"))
+save(education_recipe_tree, file = here("recipes/education_recipe_tree.rda"))
 
 
