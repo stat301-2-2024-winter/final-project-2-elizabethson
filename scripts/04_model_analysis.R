@@ -31,34 +31,48 @@ load(here("results/knn_fit_2.rda"))
 load(here("results/rf_fit_2.rda"))
 load(here("results/en_fit_2.rda"))
 
-# ROC --
-select_best(null_fit, metric = "roc_auc")
-select_best(mn_fit, metric = "roc_auc")
-select_best(rf_fit, metric = "roc_auc")
+# pick best ROC
+null_fit_best <- show_best(null_fit, metric = "roc_auc")[1,]
+mn_tuned_best <- show_best(mn_fit, metric = "roc_auc")[1,]
+bt_tuned_best <- show_best(bt_fit, metric = "roc_auc")[1,]
+knn_tuned_best <- show_best(knn_fit, metric = "roc_auc")[1,]
+rf_tuned_best <- show_best(rf_fit, metric = "roc_auc")[1,]
+en_tuned_best <- show_best(en_fit, metric = "roc_auc")[1,]
+null_fit_best_2 <- show_best(null_fit_2, metric = "roc_auc")[1,]
+mn_tuned_best_2 <- show_best(mn_fit_2, metric = "roc_auc")[1,]
+bt_tuned_best_2 <- show_best(bt_fit_2, metric = "roc_auc")[1,]
+knn_tuned_best_2 <- show_best(knn_fit_2, metric = "roc_auc")[1,]
+rf_tuned_best_2 <- show_best(rf_fit_2, metric = "roc_auc")[1,]
+en_tuned_best_2 <- show_best(en_fit_2, metric = "roc_auc")[1,]
 
-roc_null <- null_fit |> 
-  collect_metrics() |> 
-  filter(.metric == "roc_auc")
+# bind rows
+education_metrics <- bind_rows(null_fit_best |> mutate(model = "Null"),
+                               mn_tuned_best |> mutate(model = "Multinomial"),
+                               bt_tuned_best |> mutate(model = "Boosted Tree"),
+                               knn_tuned_best |> mutate(model = "K-Nearest Neighbors"),
+                               rf_tuned_best |> mutate(model = "Random Forest"),
+                               en_tuned_best |> mutate(model = "Elastic Net"),
+                               null_fit_best_2 |> mutate(model = "Null"),
+                               mn_tuned_best_2 |> mutate(model = "Multinomial"),
+                               bt_tuned_best_2 |> mutate(model = "Boosted Tree"),
+                               knn_tuned_best_2 |> mutate(model = "K-Nearest Neighbors"),
+                               rf_tuned_best_2 |> mutate(model = "Random Forest"),
+                               en_tuned_best_2 |> mutate(model = "Elastic Net")) |> 
+  mutate(recipe = c("Kitchen Sink", "Kitchen Sink", "Kitchen Sink",
+                    "Kitchen Sink", "Kitchen Sink", "Kitchen Sink",
+                    "Pre-Processed", "Pre-Processed",
+                    "Pre-Processed", "Pre-Processed",
+                    "Pre-Processed", "Pre-Processed"))
 
-roc_mn <- mn_tuned |> 
-  collect_metrics() |> 
-  filter(.metric == "roc_auc") |> 
-  arrange(desc(mean)) |> 
-  slice_head(n = 1)
-
-# another way
-mn_tuned_best <- show_best(mn_tuned, metric = "roc_auc")[1,]
-
-education_metrics <- bind_rows(roc_null |> mutate(model = "Null"),
-                               roc_mn |> mutate(model = "Multinomial")) |> 
-  mutate(recipe = c("Kitchen Sink", "Kitchen Sink"))
-
+# build ROC table
 roc_table <- education_metrics |>
   select("Model" = model, 
          "ROC" = mean,
          "Computations" = n,
          "SE" = std_err,
          "recipe" = recipe) |> 
+  arrange("ROC") |> 
   knitr::kable(digits = c(NA, 2, 3, 0))
 
+# show ROC table
 roc_table
