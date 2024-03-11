@@ -27,11 +27,12 @@ set.seed(123)
 bt_spec <- boost_tree(mode = "classification", 
                       min_n = tune(),
                       mtry = tune(), 
+                      trees = 500,
                       learn_rate = tune()) |> 
   set_engine("xgboost")
 
 # define workflows ----
-bt_workflow <- workflow() |> 
+bt_wkflw <- workflow() |> 
   add_model(bt_spec) |> 
   add_recipe(education_recipe_tree)
 
@@ -47,13 +48,13 @@ bt_grid <- grid_regular(bt_params, levels = 5)
 # set seed
 set.seed(123)
 # fit
-bt_tuned <- tune_grid(bt_workflow,
+bt_fit <- tune_grid(bt_wkflw,
                       education_folds,
                       grid = bt_grid,
                       control = control_grid(save_workflow = TRUE))
 
 # select best hyperparameters ---
-select_best(bt_tuned, metric = "accuracy") # best hyperparameters: mtry = 7, min_n = 11, learn_rate = .631
+select_best(bt_fit, metric = "roc_auc") # best hyperparameters: mtry = 7, min_n = 11, learn_rate = .631
 
 # write out results (fitted/trained workflows) ----
-save(bt_tuned, file = here("results/bt_tuned.rda"))
+save(bt_fit, file = here("results/bt_fit.rda"))

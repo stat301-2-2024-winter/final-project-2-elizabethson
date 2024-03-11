@@ -1,4 +1,4 @@
-# en fit, kitchen sink recipe ---
+# bt fit, pre-processed recipe ---
 
 # load packages ----
 library(tidyverse)
@@ -18,44 +18,43 @@ load(here("data/education_folds.rda"))
 load(here("data/education_split.rda"))
 
 # load preprocessing/feature engineering/recipe
-load(here("recipes/education_recipe.rda"))
+load(here("recipes/education_recipe_trans_tree.rda"))
 
 # set seed ---
 set.seed(123)
 
 # model specifications ----
-en_spec <- 
-  multinom_reg(
-    mode = "classification",
-    penalty = tune(),
-    mixture = tune()
-  ) |> 
-  set_engine("glmnet")
+bt_spec <- boost_tree(mode = "classification", 
+                      min_n = tune(),
+                      mtry = tune(), 
+                      trees = 500,
+                      learn_rate = tune()) |> 
+  set_engine("xgboost")
 
 # define workflows ----
-en_wkflw <- workflow() |> 
-  add_model(en_spec) |> 
-  add_recipe(education_recipe)
+bt_wkflw_2 <- workflow() |> 
+  add_model(bt_spec) |> 
+  add_recipe(education_recipe_trans_tree)
 
 # hyperparameter tuning values ----
-en_params <- extract_parameter_set_dials(en_spec) |>  
-  update(penalty = penalty(c(0, 1))) |> 
-  update(mixture = mixture(c(0, 1)))
+bt_params <- extract_parameter_set_dials(bt_spec) |> 
+  update(mtry = mtry(c(1, 7))) |> 
+  update(learn_rate = learn_rate(c(-5, -0.2)))
 
 # build tuning grid
-en_grid <- grid_regular(en_params, levels = 5)
+bt_grid <- grid_regular(bt_params, levels = 5)
 
 # fit workflows/models ----
 # set seed
 set.seed(123)
 # fit
-en_fit <- tune_grid(en_wkflw,
+bt_fit_2 <- tune_grid(bt_wkflw_2,
                       education_folds,
-                      grid = en_grid,
+                      grid = bt_grid,
                       control = control_grid(save_workflow = TRUE))
 
 # select best hyperparameters ---
-select_best(en_fit, metric = "roc_auc") # best hyperparameters: penalty = 1, mixture = 0
+select_best(bt_fit_2, metric = "roc_auc")
 
 # write out results (fitted/trained workflows) ----
-save(en_fit, file = here("results/en_fit.rda"))
+save(bt_fit_2, file = here("results/bt_fit_2.rda"))

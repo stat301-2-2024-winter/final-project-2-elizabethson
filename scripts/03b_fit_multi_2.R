@@ -1,4 +1,4 @@
-# multinomial fit, kitchen sink recipe ---
+# multinomial fit, pre-processed recipe ---
 
 # load packages ----
 library(tidyverse)
@@ -18,7 +18,7 @@ load(here("data/education_folds.rda"))
 load(here("data/education_split.rda"))
 
 # load preprocessing/feature engineering/recipe
-load(here("recipes/education_recipe.rda"))
+load(here("recipes/education_recipe_trans.rda"))
 
 # set seed ---
 set.seed(123)
@@ -29,9 +29,9 @@ mn_spec <- multinom_reg(mode = "classification",
   set_engine("nnet")
 
 # define workflows ----
-mn_wkflw <- workflow() |> 
+mn_wkflw_2 <- workflow() |> 
   add_model(mn_spec) |> 
-  add_recipe(education_recipe)
+  add_recipe(education_recipe_trans)
 
 # hyperparameter tuning values ----
 mn_params <- extract_parameter_set_dials(mn_spec) |> 
@@ -41,14 +41,14 @@ mn_params <- extract_parameter_set_dials(mn_spec) |>
 mn_grid <- grid_regular(mn_params, levels = 5)
 
 # fit workflows/models ----
-mn_fit <- tune_grid(mn_wkflw,
+mn_fit_2 <- tune_grid(mn_wkflw_2,
                       education_folds,
                       grid = mn_grid,
                       control = control_grid(save_workflow = TRUE))
 
 # select best hyperparameters ---
-show_best(mn_fit, metric = "roc_auc") # best hyperparameters: penalty = 1
-autoplot(mn_fit, metric = "roc_auc")
+show_best(mn_fit_2, metric = "roc_auc")
+autoplot(mn_fit_2, metric = "roc_auc")
 
 # save ---- 
-save(mn_fit, file = "results/mn_fit.rda")
+save(mn_fit_2, file = "results/mn_fit_2.rda")

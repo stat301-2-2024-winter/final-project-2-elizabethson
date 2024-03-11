@@ -1,4 +1,4 @@
-# rf fit, kitchen sink recipe ---
+# en fit, pre-processed recipe ---
 
 # load packages ----
 library(tidyverse)
@@ -18,41 +18,44 @@ load(here("data/education_folds.rda"))
 load(here("data/education_split.rda"))
 
 # load preprocessing/feature engineering/recipe
-load(here("recipes/education_recipe_tree.rda"))
+load(here("recipes/education_recipe_trans.rda"))
 
 # set seed ---
 set.seed(123)
 
 # model specifications ----
-rf_spec <- 
-  rand_forest(
+en_spec <- 
+  multinom_reg(
     mode = "classification",
-    trees = 500, 
-    min_n = tune(),
-    mtry = tune()
+    penalty = tune(),
+    mixture = tune()
   ) |> 
-  set_engine("ranger")
+  set_engine("glmnet")
 
 # define workflows ----
-rf_wkflw <- workflow() |> 
-  add_model(rf_spec) |> 
-  add_recipe(education_recipe_tree)
+en_wkflw_2 <- workflow() |> 
+  add_model(en_spec) |> 
+  add_recipe(education_recipe_trans)
 
 # hyperparameter tuning values ----
-rf_params <- extract_parameter_set_dials(rf_spec) |>
-  update(mtry = mtry(c(1, 7))) 
+en_params <- extract_parameter_set_dials(en_spec) |>  
+  update(penalty = penalty(c(0, 1))) |> 
+  update(mixture = mixture(c(0, 1)))
 
 # build tuning grid
-rf_grid <- grid_regular(rf_params, levels = 5)
+en_grid <- grid_regular(en_params, levels = 5)
 
 # fit workflows/models ----
-rf_fit <- tune_grid(rf_wkflw,
+# set seed
+set.seed(123)
+# fit
+en_fit_2 <- tune_grid(en_wkflw_2,
                       education_folds,
-                      grid = rf_grid,
+                      grid = en_grid,
                       control = control_grid(save_workflow = TRUE))
 
 # select best hyperparameters ---
-select_best(rf_fit, metric = "roc_auc") # best hyperparameters: mtry = 7, min_n = 11
+select_best(en_fit_2, metric = "roc_auc") 
 
 # write out results (fitted/trained workflows) ----
-save(rf_fit, file = here("results/rf_fit.rda"))
+save(en_fit_2, file = here("results/en_fit_2.rda"))
