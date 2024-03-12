@@ -70,9 +70,11 @@ roc_table <- education_metrics |>
          "ROC" = mean,
          "Computations" = n,
          "SE" = std_err,
-         "recipe" = recipe) |> 
-  arrange("ROC") |> 
+         "Recipe" = recipe) |> 
   knitr::kable(digits = c(NA, 2, 3, 0))
 
 # show ROC table
 roc_table
+
+# save ROC table
+save(roc_table, file = here("results/roc_table.rda"))
