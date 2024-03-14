@@ -1,4 +1,3 @@
-# Progress Memo 2.1 R Script
 # split and check data (inc. V fold cross validation) ---
 
 # load packages ----

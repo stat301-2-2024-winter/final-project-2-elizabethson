@@ -1,4 +1,3 @@
-# Progress Memo 1 R Script
 # read in data, perform quality checks, and analysis of target variable ---
 
 # load packages

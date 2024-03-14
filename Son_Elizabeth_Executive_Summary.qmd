@@ -1,0 +1,129 @@
+---
+title: "Executive Summary: Engineering Success"
+subtitle: |
+  | Predicting Students' Academic Dropout and Graduation Chances
+  | Final Project 
+  | Data Science 2 with R (STAT 301-2)
+author: "Elizabeth Son"
+date: today
+
+format:
+  html:
+    toc: true
+    embed-resources: true
+    
+execute:
+  echo: false
+  warning: false
+
+from: markdown+emoji 
+reference-location: margin
+citation-location: margin
+---
+
+::: {.callout-tip icon=false}
+
+## Github Repo Link
+
+[https://github.com/stat301-2-2024-winter/final-project-2-elizabethson.git](https://github.com/stat301-2-2024-winter/final-project-2-elizabethson.git)
+
+:::
+```{r}
+#| echo: false
+#| label: load-pkgs-data
+
+#libraries
+library(tidyverse)
+library(janitor)
+library(here)
+library(tidymodels)
+
+#data
+load(here("data/education.rda"))
+load(here("data/education_split.rda"))
+
+```
+
+# Introduction
+*Engineering Success: Predicting Students’ Academic Dropout and Graduation Chances* aims to predict whether a student will remain enrolled at university after two semesters, whether they will drop out, or whether they will graduate based on a number of academic and personal characteristics. This multinomial classification prediction model can help not just to tryand weed out students in application processes, but target certain groups during middle and high school to emphasize that secondary education is not the only option.
+
+## Data Source
+This data came from the UC Irvine Machine Learning Repository's collection of donated datasets and is titled "Predict students' dropout and academic success"^[UC Irvine Machine Learning Repository, "Predict students' dropout and academic success" --- [https://archive.ics.uci.edu/dataset/697/predict+students+dropout+and+academic+success](https://archive.ics.uci.edu/dataset/697/predict+students+dropout+and+academic+success)]. It was created using data from a higher education institution. The dataset corresponds to a paper written by Martins et al., titled "Early prediction of student’s performance in higher education: a case study"^[M.V.Martins, D. Tolledo, J. Machado, L. M.T. Baptista, V.Realinho. (2021) "Early prediction of student’s performance in higher education: a case study" Trends and Applications in Information Systems and Technologies, vol.1, in Advances in Intelligent Systems and Computing series. Springer. DOI: 10.1007/978-3-030-72657-7_16].
+
+# Data Overview
+The barplot in @fig-target-barplot shows the counts of each of the three classes of the response variable. It reveals a slight imbalance in the target variable observations, which was addressed by using stratified sampling when the dataset was split into training and testing data.
+```{r}
+#| label: fig-target-barplot
+#| fig-cap: "Counts of Target Variable Categories"
+
+education |> ggplot() +
+  geom_bar(aes(x = target)) +
+  labs(title = "Counts of Target Variable Categories",
+       x = "Student Result",
+       y = NULL)
+```
+
+The original dataset contained 37 predictor variables with 10 categorical and 26 numerical variables. Across all of the variables, there were no missing entries in any observation. 
+
+# Model Results
+## Model Fitting Process
+80% of the data was split into the training dataset while 20% of the data was split into the training dataset. This initial split was stratified by the target variable to address imbalance in the prediction categories. 
+
+Six model types with different tuning parameters each were used to the fit the data: a null model, multinominal model, boosted tree model, K-nearest neighbors model, random forest model, and an elastic net model. Each one had their own tuning parameters. Most notably, the trees hyperparameters determining the number of trees in random forest and boosted tree models was set to 500 to limit computation time. 
+
+Two recipes, a kitchen sink recipe with minimal features to make the models run and a feature engineered recipe with several additions such as interaction terms, transformations on predictor variables, and removal of some predictor variables were used to fit all six model types. 
+
+A repeated V-fold cross-validation technique was employed to improve the accuracy of a population parameter using 3 repeats of 10 folds: on each fold, 9/10 of the training dataset was used to train the model. Because there are 3 repeats of 10 folds, 30 assessment estimates were averaged to produce one estimate per model. Resampling allows the model to be tested several times with different samples and is useful to avoid overfitting the data to one training set.
+
+## Metric: ROC
+The metric used to determine the final winning model was the area under the ROC curve, also known as ROC AUC. This metric is a continuous value from 0 to 1. The default area under the ROC curve is 0.5 and the closer the ROC AUC is to 1.0, the greater predictive power of a model.
+
+## Determining the Winning Model 
+The ROC AUC metric was used to compare models and determine the final winning model. @tbl-roc-results shows the ROC AUC and standard errors of the six models where the kitchen sink and feature engineered recipes were each applied. As expected, the null models revealed that without complex predictive modeling, the area under the ROC curve was only .50. The boosted tree model using the kitchen sink recipe proved to be the most accurate with the highest ROC AUC value of 0.8763. The best boosted tree model had a learning rate (which weighs the influence of each new tree) of 0.0398 and an mtry (the number of variables randomly sampled at each split) of 7. 
+
+```{r}
+#| label: tbl-roc-results
+#| tbl-cap: "Table of ROC AUC Results"
+
+load(here("results/roc_table.rda"))
+roc_table
+```
+
+## Winning Model on the Testing Data
+After fitting the data to the final winning model, the boosted tree model with the kitchen sink recipe, @tbl-final-roc shows that the ROC AUC value of the fitted model to the testing data was 0.907127. This means that the model was a relatively good fit to the testing data, since a perfect fit would be indicated by an ROC AUC value of 1. 
+```{r}
+#| label: tbl-final-roc
+#| tbl-cap: "Table of Testing Data ROC to Fitted Model"
+
+load(here("results/final_accuracy_results.rda"))
+roc_table
+```
+
+Looking at some other metrics in @tbl-final-metrics, the fitted model seems to predict the testing data relatively well. A recall value of .723 indicates the model correctly identified 72.3% of the instances belonging to the category under consideration. An accuracy value of .801 indicates that the model was correct in accurating 80% of observations. 
+```{r}
+#| label: tbl-final-metrics
+#| tbl-cap: "Table of Testing Data Metrics to Fitted Model"
+
+metric_set
+```
+
+@fig-conf-matrix is a heatmap confusion matrix showing whether the outcomes predicted by a model were accurate or not. According to the confusion matrix, 231 students were correctly predicted to dropout, 68 students were correctly predicted to remain enrolled, and 411 students were correctly predicted to graduate. 31 students who dropped out were incorrectly predicted to remain enrolled while 23 students who dropped out were incorrectly predicted to graduate. 33 students who remained enrolled were incorrectly predicted to dropout while 58 students who remained enrolled were incorrectly predicted to graduate. Finally, 15 students who graduated were incorrectly predicted to dropout while 16 students who graduated were incorrectly predicted to remain enrolled. This figure shows that the model was relatively accurate in predicting student outcomes: for example, a majority of students who graduated were correctly predicted to graduate.  
+```{r}
+#| label: fig-conf-matrix
+#| fig-cap: "Final Confusion Matrix"
+
+education_conf_matrix
+```
+
+# Conclusion
+Ultimately, the most resource intensive tree-based method was the most accurate, which was unsurprising. However, the process also revealed that the time intensive feature engineering process used to create a separate recipe yielded results that were not so rewarding, especially for the tree-based methods. This was also somewhat unsurprising because tree-based methods already incorporate some facets of feature engineering in its fitting process.
+
+Being able to predict student success based on a variety of predictors can help educators, parents, and students determine whether enrolling in college is worth it for their long-term goals based on a variety of personal factors that are all observable. However, some caution should be exerted when trying to apply these results- there are other effects of college enrollment other than just receiving a degree, such as connections made or alternative paths discovered. 
+
+## Future Work
+Future work can look at other predictor variables that are not as observable. For example, they can look at social ability which may be quantitatively measured by ratings from peers. Similarly, other results that are affected by college enrollment, as mentioned in the previous section, such as connections made, can be analyzed.
+
+# References
+UC Irvine Machine Learning Repository, “Predict students’ dropout and academic success.” [https://archive.ics.uci.edu/dataset/697/predict+students+dropout+and+academic+success](https://archive.ics.uci.edu/dataset/697/predict+students+dropout+and+academic+success)
+
+M.V.Martins, D. Tolledo, J. Machado, L. M.T. Baptista, V.Realinho. (2021) “Early prediction of student’s performance in higher education: a case study” Trends and Applications in Information Systems and Technologies, vol.1, in Advances in Intelligent Systems and Computing series. Springer. DOI: 10.1007/978-3-030-72657-7_16
