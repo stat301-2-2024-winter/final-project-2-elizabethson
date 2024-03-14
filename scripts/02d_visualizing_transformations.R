@@ -31,11 +31,28 @@ for (var in numerical_names) {
   print(create_density(education_train, var))
 }
 
+# check age
+education_train |> 
+  ggplot(aes(x = age)) +
+  geom_density() +
+  labs(title = "Density Plot of Age",
+       x = "Age",
+       y = NULL) +
+  theme_minimal()
+
 # check for step_other using barplots on categorical variables ---
 education_train |>
   ggplot(aes(y = marital)) +
-  geom_bar()
+  geom_bar() +
+  labs(title = "Barplot of Marital Status",
+      x = "Count",
+      y = "Marital Status") +
+  theme_minimal()
 
 education_train |>
   ggplot(aes(y = application_order)) +
-  geom_bar()
+  geom_bar() +
+  labs(title = "Barplot of Application Order",
+       x = "Count",
+       y = "Application Order") +
+  theme_minimal()

@@ -23,31 +23,51 @@ cor_matrix <- cor(numerical_data)
 numerical_names <- colnames(numerical_data)
 
 # create corplot
-ggcorrplot::ggcorrplot(cor_matrix) +
+corplot <- ggcorrplot::ggcorrplot(cor_matrix) +
   ggtitle("Correlation Plot: Numerical Variables in Dataset")
+save(corplot, file = here("results/corplot.rda"))
 
 # check interactions I used intuition for ---
 # marital v. age
 education_train |> 
   ggplot(aes(x = marital, y = age)) +
-  geom_boxplot()
+  geom_boxplot() +
+  labs(title = "Marital Status v. Age", 
+       x = "Marital Status", 
+       y = "Age")
 
 # debtor v. tuition_fees_up_to_date
 education_train |> 
   ggplot(aes(fill = tuition_fees_up_to_date, x = debtor)) +
-  geom_bar()
+  geom_bar() +
+  labs(title = "Tuition Fees v. Debt", 
+       x = "Debtor", 
+       y = "Count", 
+       fill = "Tuition Fees up to Date"
+       )
 
 # admission_grade v. scholarship (no relationship detected)
 education_train |> 
   ggplot(aes(x = admission_grade, y = scholarship)) +
-  geom_boxplot()
+  geom_boxplot() +
+  labs(title = "Admission Grade v. Scholarship Recipient", 
+       x = "Admission Grade", 
+       y = "Scholarship Recipient")
 
 # unemployment_rate v. debtor (no relationship detected)
 education_train |> 
   ggplot(aes(x = debtor, y = unemployment_rate)) +
-  geom_boxplot()
+  geom_boxplot() +
+  labs(title = "Unemployment Rate v. Debt", 
+       x = "Debtor", 
+       y = "Unemployment Rate")
 
 # displaced v. international
 education_train |> 
   ggplot(aes(fill = international, x = displaced)) +
-  geom_bar()
+  geom_bar() +
+  labs(title = "Displaced v. International Student", 
+       x = "Displaced Student", 
+       y = "Count", 
+       fill = "International Student")
+

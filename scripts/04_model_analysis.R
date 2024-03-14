@@ -68,10 +68,9 @@ education_metrics <- bind_rows(null_fit_best |> mutate(model = "Null"),
 roc_table <- education_metrics |>
   select("Model" = model, 
          "ROC" = mean,
-         "Computations" = n,
          "SE" = std_err,
          "Recipe" = recipe) |> 
-  knitr::kable(digits = c(NA, 2, 3, 0))
+  knitr::kable(digits = c(NA, 4, 6, 0))
 
 # show ROC table
 roc_table

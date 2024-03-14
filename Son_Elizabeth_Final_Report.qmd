@@ -1,5 +1,5 @@
 ---
-title: "FINAL PROJECT (MUAT RENAME)"
+title: "Engineering Success: Predicting Students' Academic Dropout and Graduation Chances"
 subtitle: |
   | Final Project 
   | Data Science 2 with R (STAT 301-2)
@@ -28,10 +28,311 @@ citation-location: margin
 
 :::
 
-Introduction
-Data Overview (see appendix for mope details of relationships and transformations)
-Methods
-Model Building & Selection
-Final Model Analysis
-Conclusion
-References
+```{r}
+#| echo: false
+#| label: load-pkgs-data
+
+#libraries
+library(tidyverse)
+library(janitor)
+library(here)
+library(tidymodels)
+
+#data
+load(here("data/education.rda"))
+load(here("data/education_split.rda"))
+
+```
+
+# Introduction
+*Engineering Success: Predicting Students' Academic Dropout and Graduation Chances*  aims to predict whether a student will remain enrolled at university after two semesters, whether they will drop out, or whether they will graduate based on a number of academic and personal characteristics. 
+
+## Motivation
+I chose this data because I think it is interesting how a student’s success in college can be predicted using a variety of different factors. A prediction model for this particular problem would be applicable and useful not just to try and weed out students in application processes, but target certain groups during middle and high school to emphasize that secondary education is not the only option! Especially coming from a school where most students went on to a traditional university, I think that studies such as this one would be useful for emphasizing paths other than university for students that would help them save their time and money, such as vocational school.
+
+## Data Source
+This data came from the UC Irvine Machine Learning Repository's collection of donated datasets and is titled "Predict students' dropout and academic success"^[UC Irvine Machine Learning Repository, "Predict students' dropout and academic success" --- [https://archive.ics.uci.edu/dataset/697/predict+students+dropout+and+academic+success](https://archive.ics.uci.edu/dataset/697/predict+students+dropout+and+academic+success)]. It was created using data from a higher education institution. The dataset corresponds to a paper written by Martins et al., titled "Early prediction of student’s performance in higher education: a case study"^[M.V.Martins, D. Tolledo, J. Machado, L. M.T. Baptista, V.Realinho. (2021) "Early prediction of student’s performance in higher education: a case study" Trends and Applications in Information Systems and Technologies, vol.1, in Advances in Intelligent Systems and Computing series. Springer. DOI: 10.1007/978-3-030-72657-7_16].
+
+# Data Overview
+## The Response Variable: Target
+The barplot in @fig-target-barplot showing the counts of each of the three classes of the target variable, `target`, shows that there is a slight imbalance in the target variable observations. There are significantly more observations of those who graduated (around 2250) compared to those who only enrolled (around 750). This was addressed by using stratified sampling when the dataset was split into training and testing data. Additionally, no variables were missing, which eliminated the need for imputation later down the road. 
+
+```{r}
+#| label: fig-target-barplot
+#| fig-cap: "Counts of Target Variable Categories"
+
+education |> ggplot() +
+  geom_bar(aes(x = target)) +
+  labs(title = "Counts of Target Variable Categories",
+       x = "Student Result",
+       y = NULL)
+```
+
+## Predictor Variables: Feature Engineering 
+The original dataset contained 37 predictor variables with 10 categorical and 26 numerical variables. Across all of the variables, there were no missing entries in any observation. The appendix contains further details on the relationships and transformations that were explored in the feature engineered recipe building process. 
+
+# Methods
+This is a multinomial classification problem because the target variables is grouped into three classes, which this project aims to predict. 
+
+## Data Splitting
+To predict students' academic success, 80% of the data was split into the training dataset while 20% of the data was split into the training dataset. This initial split was stratified by the target variable to address imbalance in the prediction categories. 
+
+## Model Types and Tuning Parameters
+The following six model types with different tuning parameters each were used to the fit the data:
+
+1. Null Model: the baseline model is a simple model that helps determine if more complex modeling is worth it
+
+2. Multinomial Logistic Regression Model:
+
+- penalty, which describes the amount of regularization, was tuned within the range -10 to 0 
+
+3. Boosted Tree Model: multiple sequential simple regression trees, where each one is trained on residuals from the previous sequence of trees in an additive sequence, are combined into a stronger model
+
+- trees, the number of simple regression trees, was set to 500
+- learning rate, which weighs the influence of each new tree, was tuned within the range -5 to -0.2
+- mtry, the number of variables randomly sampled at each split, was tuned within the range 1 to 7
+- minimal node size, the depth of a decision tree, was set to 2
+
+4. K-Nearest Neighbors Model: the k closest training examples in a dataset are used to predict
+
+- k, the number of neighbors, was set to 15
+
+5. Random Forest Model: a decision tree method which takes the average or mode of hundreds of trees
+
+- trees, the number of simple regression trees, was set to 500
+- mtry, the number of variables randomly sampled at each split, was tuned within the range 1 to 7
+- minimal node size, the depth of a decision tree, was set to 2
+
+6. Elastic Net Model: uses penalties from lasso and ridge techniques to regularize regression models
+
+- penalty, which describes the amount of regularization, was tuned within the range 0 to 1
+- mixture, which determines a ridge or lasso regression, was tuned within the range 0 to 1
+
+## Two Recipes
+1. Kitchen Sink Recipe: the kitchen sink recipe is a basic recipe that does not contain any feature engineering, but the minimum requirements for a model supplied the recipe to run. In this case, the kitchen sink recipe dummied nominal predictors, eliminated predictors with a zero variance, and normalized all of the predictors. For tree-based models, the kitchen sink recipe specified one-hot encoding, which gives each factor its own value, for dummy variables and imputed all of the predictors, substituting missing values with others, with specifications for nominal (imputed by mode) and numeric (imputed by mean) predictors.
+
+2. Feature Engineered Recipe: the feature engineered recipe included all of the kitchen sink recipe features in addition to steps determined through an exploratory data analysis. Mother's occupation was removed as a predictor variable, a BoxCox transormation was applied to age of student, marital status and application order were condensed into fewer categories, and several interaction terms were created. For the tree-based models, a similar feature engineered recipe was created with the exception of interaction terms, because tree-based models automatically searches out interactions. See the appendix for additional information. 
+
+## Resampling Technique
+Repeated V-fold cross-validation was employed to improve the accuracy of a population parameter using 3 repeats of 10 folds. On each fold, 9/10 of the training dataset is used to train the model. This translates to around 3,185 observations because the training dataset has 3,539 observations. 354 observations (or 1/10 of the training dataset) are used to produce the assessment estimate on each fold. Because there are 3 repeats of 10 folds, 30 assessment estimates were averaged to produce one estimate per model. Resampling allows the model to be tested several times with different samples and is useful to avoid overfitting the data to one training set. 
+
+## Metric: ROC
+The metric used to determine the final winning model was the area under the ROC curve, also known as ROC AUC. This metric is a continuous value from 0 to 1. The default area under the ROC curve is 0.5 and the closer the ROC AUC is to 1.0, the greater predictive power of a model.
+
+# Model Building & Selection Results
+The ROC AUC metric was used to compare models and determine the final winning model. @tbl-roc-results shows the ROC AUC and standard errors of the six models where the kitchen sink and feature engineered recipes were each applied. As expected, the null models revealed that without complex predictive modeling, the area under the ROC curve was only .50. The boosted tree model using the kitchen sink recipe proved to be the most accurate with the highest ROC AUC value of 0.8763. 
+
+```{r}
+#| label: tbl-roc-results
+#| tbl-cap: "Table of ROC AUC Results"
+
+load(here("results/roc_table.rda"))
+roc_table
+```
+
+It was somewhat surprising that this model won. The boosted tree model is one of the most computational intensive models because several regression trees are combined into the strongest model. However, I was surprised that the kitchen sink recipe proved to be slightly more accurate than the feature engineered recipe. A possible reason to explain this is because tree-based models already seek out interaction terms, which was the bulk of my feature engineering in creating the second recipe. 
+
+## Tuning Parameter Analysis
+As mentioned earlier, five out of the six models were tuned. For both the random forest and boosted tree models, the number of simple regression trees was set to 500. In the future, this parameter could be further tuned or set to a higher number which may increase the accuracy of these models, but also be more computational extensive and take longer times to run. the number of variables randomly sampled at each split, tuned for the boosted tree and random forest models as well, could also be tuned to include a greater range of number which may increase model accuracy as well. The number of neighbors in the K-nearest neighbors model was set to 15, but could be increased to increase model accuracy.
+
+The best parameters for each model were the following: 
+- a penalty value of 1 for the multinomial models
+- a learning rate of 0.0398 and an mtry of 7 for the boosted tree models
+- 15 neighbors for the K-nearest neighbors models
+- an mtry of 7 for the random forest models
+- a penalty of 1 and a mixture of 0 for the elastic net models
+
+# Final Model Analysis
+## ROC AUC Metric
+After fitting the data to the final winning model, the boosted tree model with the kitchen sink recipe, @tbl-final-roc shows that the ROC AUC value of the fitted model to the testing data was 0.907127. This means that the model was a relatively good fit to the testing data, since a perfect fit would be indicated by an ROC AUC value of 1. 
+```{r}
+#| label: tbl-final-roc
+#| tbl-cap: "Table of Testing Data ROC to Fitted Model"
+
+load(here("results/final_accuracy_results.rda"))
+roc_table
+```
+
+Further, @fig-final-roc shows that sensitivity and specificity of predictions for all of the target categories. For example, looking at students who graduated, the proportion of predicted graduates out of all graduated students reached 1 at a proportion of predicted non-graduates out of all non-graduates at a specificity of around .55. 
+
+```{r}
+#| label: fig-final-roc
+#| fig-cap: "Figure of Testing Data ROC to Fitted Model"
+
+roc_plot
+```
+
+## Other Metrics
+Looking at some other metrics in @tbl-final-metrics, the fitted model seems to predict the testing data relatively well. A recall value of .723 indicates the model correctly identified 72.3% of the instances belonging to the category under consideration. An accuracy value of .801 indicates that the model was correct in accurating 80% of observations. 
+```{r}
+#| label: tbl-final-metrics
+#| tbl-cap: "Table of Testing Data Metrics to Fitted Model"
+
+metric_set
+```
+
+## Confusion Matrix Heatmap 
+@fig-conf-matrix is a heatmap confusion matrix showing whether the outcomes predicted by a model were accurate or not. According to the confusion matrix, 231 students were correctly predicted to dropout, 68 students were correctly predicted to remain enrolled, and 411 students were correctly predicted to graduate. 31 students who dropped out were incorrectly predicted to remain enrolled while 23 students who dropped out were incorrectly predicted to graduate. 33 students who remained enrolled were incorrectly predicted to dropout while 58 students who remained enrolled were incorrectly predicted to graduate. Finally, 15 students who graduated were incorrectly predicted to dropout while 16 students who graduated were incorrectly predicted to remain enrolled. This figure shows that the model was relatively accurate in predicting student outcomes: for example, a majority of students who graduated were correctly predicted to graduate.  
+```{r}
+#| label: fig-conf-matrix
+#| fig-cap: "Final Confusion Matrix"
+
+education_conf_matrix
+```
+
+
+# Conclusion
+The machine learning process to build a predictive model of student success resulted in a fairly accurate model of a kitchen sink recipe on a boosted tree method being used. Ultimately, the most resource intensive tree-based method was the most accurate, which was unsurprising. However, the process also revealed that the time intensive feature engineering process used to create a separate recipe yielded results that were not so rewarding, especially for the tree-based methods. This was also somewhat unsurprising because tree-based methods already incorporate some facets of feature engineering in its fitting process.
+
+Being able to predict student success based on a variety of predictors can help educators, parents, and students determine whether enrolling in college is worth it for their long-term goals based on a variety of personal factors that are all observable. However, some caution should be exerted when trying to apply these results- there are other effects of college enrollment other than just receiving a degree, such as connections made or alternative paths discovered. 
+
+## Future Work
+Future work can look at other predictor variables that are not as observable. For example, they can look at social ability which may be quantitatively measured by ratings from peers. Similarly, other results that are affected by college enrollment, as mentioned in the previous section, such as connections made, can be analyzed.
+
+## Next Steps
+I am still unsatisfied with the feature engineering recipe and the small impact it had on model accuracy. Some next steps can include further feature engineering, such as seeking out more interaction terms or removing predictors to see whether some were insignificant or even more significant when used with a variety of other factors. 
+
+# References
+UC Irvine Machine Learning Repository, “Predict students’ dropout and academic success.” [https://archive.ics.uci.edu/dataset/697/predict+students+dropout+and+academic+success](https://archive.ics.uci.edu/dataset/697/predict+students+dropout+and+academic+success)
+
+M.V.Martins, D. Tolledo, J. Machado, L. M.T. Baptista, V.Realinho. (2021) “Early prediction of student’s performance in higher education: a case study” Trends and Applications in Information Systems and Technologies, vol.1, in Advances in Intelligent Systems and Computing series. Springer. DOI: 10.1007/978-3-030-72657-7_16
+
+# Appendix: EDA
+This appendix contains further information on the exploratory data analysis on the training dataset that occurred during the feature engineered recipe creating stage. Here, I detail why certain variables were transformed, removed, or interacted. 
+
+## Correlation Plot
+@fig-corplot reveals the numerical variables from the dataset which had high amounts of correlation. The nearly perfect correlation between mother and father occupation drove the removal of mother's occupation from the feature engineered recipe to avoid multicollinearity, which would lead to less reliable statistical inferences. 
+```{r}
+#| label: fig-corplot
+#| fig-cap: "Correlation Plot of Numerical Variables"
+
+load(here("results/corplot.rda"))
+corplot
+```
+
+## Interactions
+For categorical variables, several interaction terms were sought out. 
+
+1. @fig-marital-age-boxplot shows that there is a significant relationship between marital status and age. Thus, an interaction term between the two variables was created in the feature engineered recipe. 
+
+```{r}
+#| label: fig-marital-age-boxplot
+#| fig-cap: "Boxplot of Marital Status v. Age"
+
+education_train |> 
+  ggplot(aes(x = marital, y = age)) +
+  geom_boxplot() +
+  labs(title = "Marital Status v. Age", 
+       x = "Marital Status", 
+       y = "Age") +
+  theme_minimal()
+```
+
+2. @fig-tuition-debt-barplot reveals that a significantly higher proportion of students who took out debts were not up to date on their tuition fees. An interaction term between these variables was thus created in the feature engineered recipe. 
+
+```{r}
+#| label: fig-tuition-debt-barplot
+#| fig-cap: "Barplot of Tuition Fees v. Debt"
+
+education_train |> 
+  ggplot(aes(fill = tuition_fees_up_to_date, x = debtor)) +
+  geom_bar() +
+  labs(title = "Tuition Fees v. Debt", 
+       x = "Debtor", 
+       y = "Count", 
+       fill = "Tuition Fees up to Date"
+       ) +
+  theme_minimal()
+```
+
+3. @fig-adgrade-scholarship-boxplot shows that there was no significant difference between scholarship recipients and admission grade. Thus, no interaction term between these two variables was created. 
+
+```{r}
+#| label: fig-adgrade-scholarship-boxplot
+#| fig-cap: "Boxplot of Admission Grade v. Scholarship Recipient"
+
+education_train |> 
+  ggplot(aes(x = admission_grade, y = scholarship)) +
+  geom_boxplot() +
+  labs(title = "Admission Grade v. Scholarship Recipient", 
+       x = "Admission Grade", 
+       y = "Scholarship Recipient") +
+  theme_minimal()
+```
+
+4. @fig-unemployment-debt-boxplot also reveals no significant relationship between debtor status and current unemployment rates. No interaction term was created. 
+
+```{r}
+#| label: fig-unemployment-debt-boxplot
+#| fig-cap: "Barplot of Unemployment Rate v. Debt"
+
+education_train |> 
+  ggplot(aes(x = debtor, y = unemployment_rate)) +
+  geom_boxplot() +
+  labs(title = "Unemployment Rate v. Debt", 
+       x = "Debtor", 
+       y = "Unemployment Rate") +
+  theme_minimal()
+```
+
+5. @fig-int-displ-barplot shows that a higher proportion of displaced students were not international students. Thus, an interaction term was created between these two variables. 
+
+```{r}
+#| label: fig-int-displ-barplot
+#| fig-cap: "Barplot of Displaced v. International Student"
+
+education_train |> 
+  ggplot(aes(fill = international, x = displaced)) +
+  geom_bar() +
+  labs(title = "Displaced v. International Student", 
+       x = "Displaced Student", 
+       y = "Count", 
+       fill = "International Student") +
+  theme_minimal()
+```
+
+
+## Barplots on Categorical Variables
+Marital status and application order were condensed into fewer categories because barplots reveal a high imbalance between classes of these variables. @fig-marital-barplot reveals that a majority of students were single, identified by category 1. @fig-application-order-barplot reveals a similar imbalance towards category 1, where a school was an applicant's second choice.
+```{r}
+#| label: fig-marital-barplot
+#| fig-cap: "Barplot of Marital Status"
+
+education_train |>
+  ggplot(aes(y = marital)) +
+  geom_bar() +
+  labs(title = "Barplot of Marital Status",
+      x = "Count",
+      y = "Marital Status") +
+  theme_minimal()
+```
+
+```{r}
+#| label: fig-application-order-barplot
+#| fig-cap: "Barplot of Application Order"
+
+education_train |>
+  ggplot(aes(y = application_order)) +
+  geom_bar() +
+  labs(title = "Barplot of Application Order",
+       x = "Count",
+       y = "Application Order") +
+  theme_minimal()
+```
+
+## Variable Transformations
+Density plots of all of the numerical variables in the dataset revealed that student age was heavily skewed right, as seen in @fig-age-density. Thus, a BoxCox transformation was applied to age in the feature engineered recipe. 
+
+```{r}
+#| label: fig-age-density
+#| fig-cap: "Density Plot of Age"
+
+education_train |> 
+  ggplot(aes(x = age)) +
+  geom_density() +
+  labs(title = "Density Plot of Age",
+       x = "Age",
+       y = NULL) +
+  theme_minimal()
+```
+
